@@ -1531,9 +1531,9 @@ async function handleSubmit(e) {
   }
 }
 
-// Same-origin relay (see netlify/edge-functions/submit-report.ts). Tried
-// first so the tenant's browser never has to resolve make.com directly —
-// some routers/ISPs block webhook-style domains outright (net::ERR_NAME_NOT_RESOLVED),
+// Same-origin relay (see api/submit-report.js). Tried first so the
+// tenant's browser never has to resolve make.com directly — some
+// routers/ISPs block webhook-style domains outright (net::ERR_NAME_NOT_RESOLVED),
 // which no amount of client-side retrying can work around. Falls through to
 // the old direct call below when the relay isn't deployed (e.g. GitHub Pages,
 // which can't run server-side code) or errors.
