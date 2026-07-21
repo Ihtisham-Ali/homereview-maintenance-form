@@ -1531,23 +1531,46 @@ async function handleSubmit(e) {
   }
 }
 
+// Same-origin relay (see netlify/edge-functions/submit-report.ts). Tried
+// first so the tenant's browser never has to resolve make.com directly —
+// some routers/ISPs block webhook-style domains outright (net::ERR_NAME_NOT_RESOLVED),
+// which no amount of client-side retrying can work around. Falls through to
+// the old direct call below when the relay isn't deployed (e.g. GitHub Pages,
+// which can't run server-side code) or errors.
+const RELAY_URL = "/api/submit-report";
+
+function buildSubmissionBody(payload) {
+  const body = new FormData();
+  body.append("data", JSON.stringify(payload));
+  state.uploadedFiles.forEach(f => body.append("files", f, f.name));
+  return body;
+}
+
+async function sendViaRelay(payload) {
+  try {
+    const res = await fetch(RELAY_URL, { method: "POST", body: buildSubmissionBody(payload) });
+    return res.ok;
+  } catch (_) {
+    return false;
+  }
+}
+
+async function sendDirect(payload) {
+  try {
+    // mode: 'no-cors' guarantees delivery even when the response can't be
+    // read (see comment history) — used only as the fallback path now.
+    await fetch(WEBHOOK_URL, { method: "POST", body: buildSubmissionBody(payload), mode: "no-cors" });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 async function sendWithRetry(payload) {
   const MAX = 3;
   for (let attempt = 1; attempt <= MAX; attempt++) {
-    try {
-      const body = new FormData();
-      body.append("data", JSON.stringify(payload));
-      state.uploadedFiles.forEach(f => body.append("files", f, f.name));
-      // Use mode: 'no-cors' to prevent CORS block on local/staging environments.
-      // Plain XHR was tried for real upload-progress events, but without CORS
-      // headers on the webhook response it can outright fail to send the
-      // request (preflight block) instead of just returning an opaque
-      // response — fetch's no-cors mode is the only reliable way to
-      // guarantee delivery here, so progress is estimated instead (see
-      // startFakeProgress).
-      await fetch(WEBHOOK_URL, { method: "POST", body, mode: "no-cors" });
-      return true;
-    } catch (_) {}
+    if (await sendViaRelay(payload)) return true;
+    if (await sendDirect(payload)) return true;
     if (attempt < MAX) {
       await new Promise(r => setTimeout(r, attempt * 1500));
     }
