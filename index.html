@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report a Repair | Homeview Property Group</title>
+  <meta name="description"
+    content="Report a repair or maintenance issue at your property. Submit details and photos securely to our team." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=4" />
+</head>
+
+<body>
+  <!-- Alert Modal -->
+  <div id="alert-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-icon" id="modal-icon">⚠️</div>
+      <h3 id="modal-title" class="modal-title"></h3>
+      <p id="modal-message" class="modal-message"></p>
+      <button id="modal-close-btn" class="btn btn-primary modal-btn" onclick="closeModal()">OK, I understand</button>
+    </div>
+  </div>
+
+  <!-- YouTube Video Modal -->
+  <div id="video-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Help video">
+    <div class="video-modal-card">
+      <button class="video-modal-close" onclick="closeVideoModal()" aria-label="Close video">&times;</button>
+      <div class="video-embed-wrap">
+        <iframe id="video-iframe" src="" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Wrapper -->
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="form-header">
+      <div class="header-inner">
+        <div class="header-logo">
+          <img src="homereview_logo.png" alt="Homeview Property Group" class="header-logo-img" />
+          <div class="logo-text">
+            <span class="logo-name">Homeview Property Group</span>
+            <span class="logo-tagline">Premium Property Management</span>
+          </div>
+        </div>
+        <div class="header-badge">Secure Form</div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="form-hero">
+      <div class="hero-inner">
+        <img src="homereview_logo.png" alt="Homeview Property Group" class="hero-logo" />
+        <h1 class="hero-title">Report a Repair</h1>
+        <p class="hero-subtitle">Please complete this form to report a repair or maintenance issue at your property.</p>
+        <div class="hero-steps">
+          <div class="hero-step active" id="step-indicator-1"><span>1</span> Your Details</div>
+          <div class="hero-step-divider"></div>
+          <div class="hero-step" id="step-indicator-2"><span>2</span> Category</div>
+          <div class="hero-step-divider"></div>
+          <div class="hero-step" id="step-indicator-3"><span>3</span> Issue details</div>
+          <div class="hero-step-divider"></div>
+          <div class="hero-step" id="step-indicator-4"><span>4</span> Preferences</div>
+          <div class="hero-step-divider"></div>
+          <div class="hero-step" id="step-indicator-5"><span>5</span> Submit</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form Container -->
+    <main class="form-main">
+      <form id="repair-form" novalidate>
+
+        <!-- STEP 1: Contact Details -->
+        <div class="form-step" id="step-1" style="display:block">
+          <div class="step-card">
+            <div class="step-card-header">
+              <div class="step-num">01</div>
+              <div>
+                <h2 class="step-title">Your Details</h2>
+                <p class="step-desc">Let us know who you are and where the repair is needed.</p>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="name">Full Name <span class="required-star">*</span></label>
+              <input class="field-input" type="text" id="name" name="name" placeholder="e.g. Sarah Johnson" required
+                autocomplete="name" />
+              <span class="field-error" id="name-error"></span>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="email">Email Address <span class="required-star">*</span></label>
+                <input class="field-input" type="email" id="email" name="email" placeholder="you@example.com" required
+                  autocomplete="email"
+                  oninput="validateEmailInline(this)"
+                  onblur="validateEmailInline(this)" />
+                <span class="field-error" id="email-error"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="phone-digits">Phone Number <span class="required-star">*</span></label>
+                <div class="phone-input-wrap">
+                  <span class="phone-prefix">🇬🇧 +44</span>
+                  <input class="field-input phone-digits-input" type="tel" id="phone-digits"
+                    placeholder="7700 000000" maxlength="13" autocomplete="tel"
+                    oninput="validatePhoneInline(this)" onblur="validatePhoneInline(this)" />
+                </div>
+                <input type="hidden" id="phone" name="phone" />
+                <span class="field-error" id="phone-error"></span>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label" for="address">Property Address <span class="required-star">*</span></label>
+                <input class="field-input" type="text" id="address" name="address" placeholder="e.g. 123 High Street, London" required />
+                <span class="field-error" id="address-error"></span>
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="flat-room">Flat / Room Number</label>
+                <input class="field-input" type="text" id="flat-room" name="flat_room" placeholder="e.g. Flat 4B (Optional)" />
+                <span class="field-error" id="flat-room-error"></span>
+              </div>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-primary" onclick="goToStep(2)">Continue <span
+                  class="btn-arrow">→</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Category Selection ("Where is the problem?") -->
+        <div class="form-step" id="step-2" style="display:none">
+          <div class="step-card">
+            <div class="step-card-header">
+              <div class="step-num">02</div>
+              <div>
+                <h2 class="step-title">Where is the problem?</h2>
+                <p class="step-desc">Select the area or category that best matches your maintenance issue.</p>
+              </div>
+            </div>
+
+            <div class="category-grid" id="category-grid">
+              <!-- Dynamically rendered category cards -->
+            </div>
+            <input type="hidden" id="category-id" name="category_id" />
+            <input type="hidden" id="category-label" name="category_label" />
+            <span class="field-error" id="category-error" style="text-align:center; display:block; margin-top:0.5rem"></span>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(3)">Continue <span
+                  class="btn-arrow">→</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Issue Details & Troubleshooting -->
+        <div class="form-step" id="step-3" style="display:none">
+          <div class="step-card">
+            <div class="step-card-header">
+              <div class="step-num">03</div>
+              <div>
+                <h2 class="step-title">Issue Details</h2>
+                <p class="step-desc">Select the specific issue and tell us what needs fixing.</p>
+              </div>
+            </div>
+
+            <!-- Urgent Banner (shown conditionally) -->
+            <div class="urgent-banner hidden" id="urgent-banner">
+              <div class="urgent-banner-icon">🚨</div>
+              <div>
+                <strong>This issue may be urgent</strong> and will be prioritised by our maintenance team.
+                Please provide details and upload photos or videos if safe to do so.
+              </div>
+            </div>
+
+            <!-- Emergency Banner for gas/CO -->
+            <div class="emergency-banner hidden" id="emergency-banner">
+              <div class="emergency-banner-icon">☣️</div>
+              <div>
+                <strong>EMERGENCY:</strong> If you suspect a gas leak or carbon monoxide risk,
+                <strong>leave the property immediately</strong>, call the National Gas Emergency line on
+                <strong>0800 111 999</strong> and ensure your safety before continuing.
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="issue-search">Issue Type <span class="required-star">*</span></label>
+              <div class="issue-select-wrap" id="issue-select-wrap">
+                <input class="field-input" type="text" id="issue-search" placeholder="Search or select an issue…"
+                  autocomplete="off" readonly onfocus="openIssueDropdown()" onclick="openIssueDropdown()" />
+                <span class="select-arrow">▾</span>
+                <div class="issue-dropdown hidden" id="issue-dropdown">
+                  <div class="issue-dropdown-search-wrap">
+                    <input class="issue-dropdown-search" id="issue-dropdown-search" type="text"
+                      placeholder="Type to filter issues…" oninput="filterIssues(this.value)" />
+                  </div>
+                  <div class="issue-dropdown-list" id="issue-dropdown-list"></div>
+                </div>
+              </div>
+              <input type="hidden" id="issue-code" name="issue_code" />
+              <input type="hidden" id="issue-label" name="issue_label" />
+              <span class="field-error" id="issue-error"></span>
+            </div>
+
+            <!-- Help Video Card (shown conditionally based on selected issue) -->
+            <div class="field-group hidden" id="help-video-container">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Other Issue -->
+            <div class="field-group conditional-field hidden" id="other-issue-group">
+              <label class="field-label" for="other-issue">Please describe the issue <span
+                  class="required-star">*</span></label>
+              <textarea class="field-textarea" id="other-issue" name="other_issue" rows="3"
+                placeholder="Please describe the issue in as much detail as possible…"></textarea>
+              <span class="field-error" id="other-issue-error"></span>
+            </div>
+
+            <!-- Troubleshooting Questions Container -->
+            <div id="troubleshoot-container">
+              <!-- Dynamically rendered troubleshooting questions -->
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="further-info">Description of the issue <span
+                  class="required-star">*</span></label>
+              <textarea class="field-textarea" id="further-info" name="further_info" rows="4"
+                placeholder="Describe: what happened, when it started, what room or area is affected, and if the issue is getting worse…"
+                required></textarea>
+              <span class="field-error" id="further-info-error"></span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Photos &amp; Video of the Issue <span class="required-star">*</span></label>
+              <div class="upload-area" id="upload-area" onclick="document.getElementById('file-upload').click()">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Click to upload or drag &amp; drop</div>
+                <div class="upload-sub">Supports photos and videos · Multiple files allowed</div>
+                <input type="file" id="file-upload" name="files" multiple accept="image/*,video/*" class="hidden"
+                  onchange="handleFiles(this.files)" />
+              </div>
+              <div class="upload-previews" id="upload-previews"></div>
+              <span class="field-error" id="upload-error"></span>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(4)">Continue <span
+                  class="btn-arrow">→</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: Access & Preferences -->
+        <div class="form-step" id="step-4" style="display:none">
+          <div class="step-card">
+            <div class="step-card-header">
+              <div class="step-num">04</div>
+              <div>
+                <h2 class="step-title">Access &amp; Preferences</h2>
+                <p class="step-desc">Help us coordinate access and schedule repairs efficiently.</p>
+              </div>
+            </div>
+
+            <!-- Priority Selector -->
+            <div class="field-group">
+              <label class="field-label">Priority <span class="required-star">*</span></label>
+              <div class="priority-btn-group" id="priority-btn-group">
+                <button type="button" class="priority-btn" data-priority="routine" onclick="selectPriorityBtn('routine')">
+                  <strong>Routine</strong>
+                  <span style="font-size: 0.72rem; opacity: 0.85;">Standard repairs</span>
+                </button>
+                <button type="button" class="priority-btn" data-priority="urgent" onclick="selectPriorityBtn('urgent')">
+                  <strong>Urgent</strong>
+                  <span style="font-size: 0.72rem; opacity: 0.85;">Needs quick attention</span>
+                </button>
+                <button type="button" class="priority-btn" data-priority="emergency" onclick="selectPriorityBtn('emergency')">
+                  <strong>Emergency</strong>
+                  <span style="font-size: 0.72rem; opacity: 0.85;">Immediate safety risk</span>
+                </button>
+              </div>
+              <input type="hidden" id="priority" name="priority" value="routine" />
+              <span class="field-error" id="priority-error"></span>
+            </div>
+
+            <!-- Keys Permission -->
+            <div class="field-group">
+              <label class="field-label">Can we use management keys? <span class="required-star">*</span></label>
+              <p class="step-desc" style="margin-top: -0.25rem; margin-bottom: 0.5rem;">Allows contractors to enter if you are out, speeding up the repair.</p>
+              <div class="radio-btn-group" id="keys-group">
+                <div class="radio-btn-card" data-value="yes" onclick="selectKeysOption('yes')">
+                  <span class="radio-btn-dot"></span>
+                  <span>Yes, you may use management keys</span>
+                </div>
+                <div class="radio-btn-card" data-value="no" onclick="selectKeysOption('no')">
+                  <span class="radio-btn-dot"></span>
+                  <span>No, I must be present (appointment needed)</span>
+                </div>
+              </div>
+              <input type="hidden" id="keys-allowed" name="keys_allowed" />
+              <span class="field-error" id="keys-error"></span>
+            </div>
+
+            <!-- Pets -->
+            <div class="field-group">
+              <label class="field-label">Are there pets at the property? <span class="required-star">*</span></label>
+              <div class="radio-btn-group" id="pets-group">
+                <div class="radio-btn-card" data-value="no" onclick="selectPetsOption('no')">
+                  <span class="radio-btn-dot"></span>
+                  <span>No pets at property</span>
+                </div>
+                <div class="radio-btn-card" data-value="yes" onclick="selectPetsOption('yes')">
+                  <span class="radio-btn-dot"></span>
+                  <span>Yes, there are pets</span>
+                </div>
+              </div>
+              <input type="hidden" id="has-pets" name="has_pets" />
+              <div class="conditional-field hidden" id="pets-details-group" style="margin-top:0.75rem">
+                <input class="field-input" type="text" id="pets-details" name="pets_details" placeholder="Please describe pets (e.g. Friendly dog, cat to keep indoors)" />
+              </div>
+              <span class="field-error" id="pets-error"></span>
+            </div>
+
+            <!-- Calendly-Style Preferred Appointment Picker -->
+            <div class="field-group">
+              <div class="appt-label-row">
+                <label class="field-label" style="margin-bottom:0;">Preferred appointment dates &amp; times</label>
+                <span class="appt-max-badge" id="appt-max-badge">Select up to 2 dates</span>
+              </div>
+
+              <!-- Date pills row (next 14 days, rendered by JS) -->
+              <div class="appt-date-row" id="appt-date-row">
+                <!-- Rendered by buildDatePicker() -->
+              </div>
+
+              <!-- Per-date time slot cards (one card per selected date) -->
+              <div class="appt-per-date-slots" id="appt-per-date-slots">
+                <!-- Rendered by renderPerDateSlots() -->
+              </div>
+
+              <!-- Selected summary chips -->
+              <div class="appt-summary" id="appt-summary"></div>
+              <input type="hidden" id="preferred-slots" name="preferred_slots" />
+            </div>
+
+            <!-- Access Instructions -->
+            <div class="field-group">
+              <label class="field-label" for="access-instructions">Access instructions</label>
+              <textarea class="field-textarea" id="access-instructions" name="access_instructions" rows="3" placeholder="e.g. Key safe code is 1234, ring flat buzzer, beware of loose floorboards in hallway..."></textarea>
+              <span class="field-error" id="access-instructions-error"></span>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" onclick="goToStep(3)">← Back</button>
+              <button type="button" class="btn btn-primary" onclick="goToStep(5)">Continue <span
+                  class="btn-arrow">→</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 5: Review & Submit -->
+        <div class="form-step" id="step-5" style="display:none">
+          <div class="step-card">
+            <div class="step-card-header">
+              <div class="step-num">05</div>
+              <div>
+                <h2 class="step-title">Review &amp; Submit</h2>
+                <p class="step-desc">Please check your details before submitting your repair report.</p>
+              </div>
+            </div>
+
+            <div class="review-grid" id="review-grid"></div>
+
+            <!-- Hidden internal fields -->
+            <input type="hidden" id="engineer_required" name="engineer_required" value="false" />
+            <input type="hidden" id="request_closed" name="request_closed" value="false" />
+            <input type="hidden" id="responsibility_type" name="responsibility_type" value="" />
+            <input type="hidden" id="alert_type" name="alert_type" value="" />
+            <input type="hidden" id="troubleshooting_path" name="troubleshooting_path" value="" />
+            <input type="hidden" id="final_action" name="final_action" value="" />
+            <input type="hidden" id="submitted_at" name="submitted_at" value="" />
+
+            <div class="field-group" style="margin-top:1.5rem">
+              <label class="checkbox-label">
+                <input type="checkbox" id="consent-check" required />
+                <span>I confirm that the information provided is accurate and I consent to this report being reviewed by
+                  the maintenance team.</span>
+              </label>
+              <span class="field-error" id="consent-error"></span>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" onclick="goBackFromReview()">← Back</button>
+              <button type="submit" class="btn btn-submit" id="submit-btn">
+                <span id="submit-text">Submit Report</span>
+                <span id="submit-spinner" class="hidden">⏳ Submitting…</span>
+              </button>
+            </div>
+            <div class="upload-progress-wrap hidden" id="upload-progress-wrap">
+              <div class="upload-progress-track">
+                <div class="upload-progress-bar" id="upload-progress-bar" style="width:0%"></div>
+              </div>
+              <span class="upload-progress-text" id="upload-progress-text">Uploading… 0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 6: Confirmation -->
+        <div class="form-step" id="step-6" style="display:none">
+          <div class="step-card confirmation-card">
+            <div class="confirm-icon" id="confirm-icon">✅</div>
+            <h2 class="confirm-title" id="confirm-title">Report Submitted Successfully</h2>
+            <p class="confirm-message" id="confirm-message"></p>
+            <div class="confirm-note" id="confirm-note"></div>
+
+            <button type="button" class="btn btn-primary" onclick="resetForm()" style="margin-top:2rem">Submit Another
+              Report</button>
+          </div>
+        </div>
+
+      </form>
+    </main>
+
+    <footer class="form-footer">
+      <p>© 2026 Homeview Property Group · Secure &amp; Confidential</p>
+    </footer>
+  </div>
+
+  <script src="data.js?v=4"></script>
+  <script src="app.js?v=4"></script>
+</body>
+
+</html>
